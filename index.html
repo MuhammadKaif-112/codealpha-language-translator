@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Language Translator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 30px 35px;
+      width: 100%;
+      max-width: 700px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    .lang-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .lang-box {
+      flex: 1;
+    }
+
+    .lang-box label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #555;
+      font-size: 14px;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      background: #f9f9f9;
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #74ebd5;
+    }
+
+    .text-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .text-box {
+      flex: 1;
+    }
+
+    .text-box h3 {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      resize: vertical;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: #74ebd5;
+    }
+
+    #outputText {
+      background: #f4faf9;
+    }
+
+    #translateBtn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #74ebd5, #5cc9b8);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #translateBtn:hover {
+      box-shadow: 0 6px 15px rgba(116, 235, 213, 0.5);
+      transform: translateY(-2px);
+    }
+
+    #translateBtn:active {
+      transform: translateY(0);
+    }
+
+    .output-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .output-actions button {
+      flex: 1;
+      padding: 8px;
+      border: 2px solid #74ebd5;
+      background: white;
+      color: #2c3e50;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .output-actions button:hover {
+      background: #f0fdfb;
+    }
+
+    .output-actions button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    @media (max-width: 600px) {
+      .lang-row, .text-row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <h1>Language Translator</h1>
+
+    <div class="lang-row">
+      <div class="lang-box">
+        <label for="sourceLang">From:</label>
+        <select id="sourceLang">
+          <option value="en">English</option>
+          <option value="ur">Urdu</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+        </select>
+      </div>
+
+      <div class="lang-box">
+        <label for="targetLang">To:</label>
+        <select id="targetLang">
+          <option value="en">English</option>
+          <option value="ur">Urdu</option>
+          <option value="fr">French</option>
+          <option value="es">Spanish</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="text-row">
+      <div class="text-box">
+        <h3>Enter Text</h3>
+        <textarea id="sourceText" rows="6" placeholder="Type text here..."></textarea>
+      </div>
+
+      <div class="text-box">
+        <h3>Translated Text</h3>
+        <textarea id="outputText" rows="6" placeholder="Translation will appear here..." readonly></textarea>
+        <div class="output-actions">
+          <button id="copyBtn" type="button">📋 Copy</button>
+          <button id="speakBtn" type="button">🔊 Listen</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="translateBtn">Translate</button>
+
+  </div>
+
+  <script>
+    const sourceLangSel = document.getElementById('sourceLang');
+    const targetLangSel = document.getElementById('targetLang');
+    const sourceText = document.getElementById('sourceText');
+    const outputText = document.getElementById('outputText');
+    const translateBtn = document.getElementById('translateBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const speakBtn = document.getElementById('speakBtn');
+
+    copyBtn.disabled = true;
+    speakBtn.disabled = true;
+
+    translateBtn.addEventListener('click', function() {
+      const text = sourceText.value;
+      const fromLang = sourceLangSel.value;
+      const toLang = targetLangSel.value;
+
+      if (text.trim() === "") {
+        alert("Please enter some text first.");
+        return;
+      }
+
+      outputText.value = "Translating...";
+      copyBtn.disabled = true;
+      speakBtn.disabled = true;
+
+      const langPair = fromLang + "|" + toLang;
+      const url = "https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=" + langPair;
+
+      fetch(url)
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(data) {
+          outputText.value = data.responseData.translatedText;
+          copyBtn.disabled = false;
+          speakBtn.disabled = false;
+        })
+        .catch(function(error) {
+          outputText.value = "Error: could not translate.";
+          console.log(error);
+        });
+    });
+
+    copyBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(outputText.value).then(function() {
+        copyBtn.textContent = "Copied!";
+        setTimeout(function() {
+          copyBtn.textContent = " Copy";
+        }, 1500);
+      });
+    });
+
+   speakBtn.addEventListener('click', function() {
+  if (outputText.value.trim() === "") {
+    alert("Nothing to speak yet.");
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const voices = window.speechSynthesis.getVoices();
+  const targetCode = targetLangSel.value;
+  const hasVoice = voices.some(function(v) {
+    return v.lang.toLowerCase().startsWith(targetCode);
+  });
+
+  if (!hasVoice && voices.length > 0) {
+    alert("Voice for this language isn't installed on your system. Try English, Spanish, or French.");
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(outputText.value);
+  utterance.lang = targetCode;
+  utterance.rate = 1;
+  utterance.volume = 1;
+
+  utterance.onerror = function(event) {
+    console.log("Speech error:", event.error);
+  };
+
+  if (voices.length === 0) {
+    window.speechSynthesis.onvoiceschanged = function() {
+      window.speechSynthesis.speak(utterance);
+    };
+  } else {
+    window.speechSynthesis.speak(utterance);
+  }
+});
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(outputText.value);
+      utterance.lang = targetLangSel.value;
+      utterance.rate = 1;
+      utterance.volume = 1;
+
+      utterance.onerror = function(event) {
+        console.log("Speech error:", event.error);
+        alert("Could not play audio for this language in your browser.");
+      };
+
+      const voices = window.speechSynthesis.getVoices();
+      if (voices.length === 0) {
+        window.speechSynthesis.onvoiceschanged = function() {
+          window.speechSynthesis.speak(utterance);
+        };
+      } else {
+        window.speechSynthesis.speak(utterance);
+      }
+  </script>
+
+</body>
+</html>
